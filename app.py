@@ -40,14 +40,10 @@ ENGLISH_FREQUENCIES = 'ETAOINSHRDLCUMWFGYPBVKJXQZ'.lower()
 def caesar_encrypt(text: str, shift: int) -> str:
     result = ""
     for char in text:
-        if char.isalpha():
-            # Determine the case and base ASCII value
-            ascii_base = ord('A') if char.isupper() else ord('a')
-            # Convert to 0-25 range, apply shift, and convert back
-            shifted = (ord(char) - ascii_base + shift) % 26
-            result += chr(ascii_base + shifted)
-        else:
-            result += char
+        # Convert to ASCII, apply shift, and wrap around 256
+        ascii_val = ord(char)
+        shifted = (ascii_val + shift) % 256
+        result += chr(shifted)
     return result
 
 def caesar_decrypt(text: str, shift: int) -> str:
@@ -55,7 +51,8 @@ def caesar_decrypt(text: str, shift: int) -> str:
 
 def caesar_attack(text: str) -> List[dict]:
     results = []
-    for shift in range(26):
+    # Try all possible shifts (0-255)
+    for shift in range(256):
         decrypted = caesar_decrypt(text, shift)
         results.append({
             "shift": shift,
@@ -66,27 +63,16 @@ def caesar_attack(text: str) -> List[dict]:
 # Monoalphabetic Cipher Implementation
 def create_substitution_key(shift: int) -> Dict[str, str]:
     substitution = {}
-    # Create mapping for uppercase letters (A-Z)
-    for i in range(26):
-        original = chr(ord('A') + i)
-        substituted = chr(ord('A') + ((i + shift) % 26))
-        substitution[original] = substituted
-    # Create mapping for lowercase letters (a-z)
-    for i in range(26):
-        original = chr(ord('a') + i)
-        substituted = chr(ord('a') + ((i + shift) % 26))
+    # Create mapping for all ASCII characters (0-255)
+    for i in range(256):
+        original = chr(i)
+        substituted = chr((i + shift) % 256)
         substitution[original] = substituted
     return substitution
 
 def monoalphabetic_encrypt(text: str, shift: int) -> str:
     key = create_substitution_key(shift)
-    result = ""
-    for char in text:
-        if char.isalpha():
-            result += key[char]
-        else:
-            result += char
-    return result
+    return ''.join(key[char] for char in text)
 
 def monoalphabetic_decrypt(text: str, shift: int) -> str:
     return monoalphabetic_encrypt(text, -shift)
@@ -143,16 +129,16 @@ async def root():
 @app.post("/caesar/encrypt", response_model=CipherResponse)
 async def api_caesar_encrypt(request: CipherRequest):
     """Encrypt text using Caesar cipher"""
-    if not 0 <= request.shift <= 25:
-        raise HTTPException(status_code=400, detail="Shift must be between 0 and 25")
+    if not 0 <= request.shift <= 255:
+        raise HTTPException(status_code=400, detail="Shift must be between 0 and 255")
     result = caesar_encrypt(request.text, request.shift)
     return CipherResponse(result=result)
 
 @app.post("/caesar/decrypt", response_model=CipherResponse)
 async def api_caesar_decrypt(request: CipherRequest):
     """Decrypt text using Caesar cipher"""
-    if not 0 <= request.shift <= 25:
-        raise HTTPException(status_code=400, detail="Shift must be between 0 and 25")
+    if not 0 <= request.shift <= 255:
+        raise HTTPException(status_code=400, detail="Shift must be between 0 and 255")
     result = caesar_decrypt(request.text, request.shift)
     return CipherResponse(result=result)
 
@@ -166,16 +152,16 @@ async def api_caesar_attack(request: AttackRequest):
 @app.post("/monoalphabetic/encrypt", response_model=CipherResponse)
 async def api_monoalphabetic_encrypt(request: CipherRequest):
     """Encrypt text using Monoalphabetic cipher"""
-    if not 0 <= request.shift <= 25:
-        raise HTTPException(status_code=400, detail="Shift must be between 0 and 25")
+    if not 0 <= request.shift <= 255:
+        raise HTTPException(status_code=400, detail="Shift must be between 0 and 255")
     result = monoalphabetic_encrypt(request.text, request.shift)
     return CipherResponse(result=result)
 
 @app.post("/monoalphabetic/decrypt", response_model=CipherResponse)
 async def api_monoalphabetic_decrypt(request: CipherRequest):
     """Decrypt text using Monoalphabetic cipher"""
-    if not 0 <= request.shift <= 25:
-        raise HTTPException(status_code=400, detail="Shift must be between 0 and 25")
+    if not 0 <= request.shift <= 255:
+        raise HTTPException(status_code=400, detail="Shift must be between 0 and 255")
     result = monoalphabetic_decrypt(request.text, request.shift)
     return CipherResponse(result=result)
 

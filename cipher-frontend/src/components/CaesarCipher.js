@@ -24,8 +24,8 @@ function CaesarCipher() {
       const shiftNum = parseInt(shift);
       if (shift === '' || isNaN(shiftNum)) {
         newErrors.shift = 'Shift value is required';
-      } else if (shiftNum < 0 || shiftNum > 25) {
-        newErrors.shift = 'Shift must be between 0 and 25';
+      } else if (shiftNum < 0 || shiftNum > 255) {
+        newErrors.shift = 'Shift must be between 0 and 255';
       }
     }
 
@@ -140,11 +140,11 @@ function CaesarCipher() {
 
       <div className={`input-group ${errors.shift ? 'error' : ''}`}>
         <label>
-          Shift (0-25):
+          Shift (0-255):
           <input
             type="number"
             min="0"
-            max="25"
+            max="255"
             value={shift}
             onChange={(e) => {
               const value = e.target.value;
@@ -155,10 +155,10 @@ function CaesarCipher() {
                 setErrors({ ...errors, shift: 'Shift value is required' });
               } else if (!isNaN(numValue)) {
                 setShift(numValue);
-                if (numValue >= 0 && numValue <= 25) {
+                if (numValue >= 0 && numValue <= 255) {
                   setErrors({ ...errors, shift: '', submit: '' });
                 } else {
-                  setErrors({ ...errors, shift: 'Shift must be between 0 and 25' });
+                  setErrors({ ...errors, shift: 'Shift must be between 0 and 255' });
                 }
               }
             }}
@@ -173,13 +173,13 @@ function CaesarCipher() {
       <div className="button-group">
         <button 
           onClick={handleEncrypt} 
-          disabled={loading || !text.trim() || errors.shift || shift === '' || parseInt(shift) < 0 || parseInt(shift) > 25}
+          disabled={loading || !text.trim() || errors.shift || shift === '' || parseInt(shift) < 0 || parseInt(shift) > 255}
         >
           Encrypt
         </button>
         <button 
           onClick={handleDecrypt} 
-          disabled={loading || !text.trim() || errors.shift || shift === '' || parseInt(shift) < 0 || parseInt(shift) > 25}
+          disabled={loading || !text.trim() || errors.shift || shift === '' || parseInt(shift) < 0 || parseInt(shift) > 255}
         >
           Decrypt
         </button>
