@@ -3,13 +3,13 @@ import './CipherStyles.css';
 
 function MonoalphabeticCipher() {
   const [text, setText] = useState('');
-  const [shift, setShift] = useState(3);
   const [result, setResult] = useState('');
+  const [currentKey, setCurrentKey] = useState(null);
   const [attackResults, setAttackResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const validateInputs = (isAttack = false) => {
+  const validateInputs = () => {
     const newErrors = {};
 
     // Validate text
@@ -17,16 +17,6 @@ function MonoalphabeticCipher() {
       newErrors.text = 'Text is required';
     } else if (text.length > 500) {
       newErrors.text = 'Text must be less than 500 characters';
-    }
-
-    // Validate shift (not needed for attack)
-    if (!isAttack) {
-      const shiftNum = parseInt(shift);
-      if (shift === '' || isNaN(shiftNum)) {
-        newErrors.shift = 'Shift value is required';
-      } else if (shiftNum < 0 || shiftNum > 255) {
-        newErrors.shift = 'Shift must be between 0 and 255';
-      }
     }
 
     setErrors(newErrors);
@@ -43,7 +33,7 @@ function MonoalphabeticCipher() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text, shift }),
+        body: JSON.stringify({ text }),
       });
       
       if (!response.ok) {
@@ -52,6 +42,7 @@ function MonoalphabeticCipher() {
 
       const data = await response.json();
       setResult(data.result);
+      setCurrentKey(data.key);
       setAttackResults([]);
       setErrors({});
     } catch (error) {
@@ -63,6 +54,10 @@ function MonoalphabeticCipher() {
 
   const handleDecrypt = async () => {
     if (!validateInputs()) return;
+    if (!currentKey) {
+      setErrors({ submit: 'No encryption key available. Please encrypt some text first.' });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -71,7 +66,10 @@ function MonoalphabeticCipher() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text, shift }),
+        body: JSON.stringify({
+          text: text,
+          key: currentKey
+        }),
       });
 
       if (!response.ok) {
@@ -90,7 +88,7 @@ function MonoalphabeticCipher() {
   };
 
   const handleAttack = async () => {
-    if (!validateInputs(true)) return;
+    if (!validateInputs()) return;
 
     setLoading(true);
     try {
@@ -119,7 +117,7 @@ function MonoalphabeticCipher() {
 
   return (
     <div className="cipher-container">
-      <h2>Monoalphabetic Cipher</h2>
+      <h2>Monoalphabetic Cipher (Random Substitution)</h2>
       
       <div className={`input-group ${errors.text ? 'error' : ''}`}>
         <label>
@@ -138,48 +136,18 @@ function MonoalphabeticCipher() {
         {errors.text && <div className="error-message">{errors.text}</div>}
       </div>
 
-      <div className={`input-group ${errors.shift ? 'error' : ''}`}>
-        <label>
-          Shift (0-255):
-          <input
-            type="number"
-            min="0"
-            max="255"
-            value={shift}
-            onChange={(e) => {
-              const value = e.target.value;
-              const numValue = parseInt(value);
-              
-              if (value === '') {
-                setShift('');
-                setErrors({ ...errors, shift: 'Shift value is required' });
-              } else if (!isNaN(numValue)) {
-                setShift(numValue);
-                if (numValue >= 0 && numValue <= 255) {
-                  setErrors({ ...errors, shift: '', submit: '' });
-                } else {
-                  setErrors({ ...errors, shift: 'Shift must be between 0 and 255' });
-                }
-              }
-            }}
-            className={errors.shift ? 'error' : ''}
-          />
-        </label>
-        {errors.shift && <div className="error-message">{errors.shift}</div>}
-      </div>
-
       {errors.submit && <div className="error-message submit-error">{errors.submit}</div>}
 
       <div className="button-group">
         <button 
           onClick={handleEncrypt} 
-          disabled={loading || !text.trim() || errors.shift || shift === '' || parseInt(shift) < 0 || parseInt(shift) > 255}
+          disabled={loading || !text.trim()}
         >
           Encrypt
         </button>
         <button 
           onClick={handleDecrypt} 
-          disabled={loading || !text.trim() || errors.shift || shift === '' || parseInt(shift) < 0 || parseInt(shift) > 255}
+          disabled={loading || !text.trim() || !currentKey}
         >
           Decrypt
         </button>
@@ -187,7 +155,7 @@ function MonoalphabeticCipher() {
           onClick={handleAttack} 
           disabled={loading || !text.trim()}
         >
-          Attack
+          Analyze
         </button>
       </div>
 
@@ -206,9 +174,34 @@ function MonoalphabeticCipher() {
           <div className="results-container">
             {attackResults.map((result, index) => (
               <div key={index} className="result-item">
-                <strong>Shift {result.shift}</strong>: {result.plaintext}
+                <h4>{result.description}</h4>
+                {result.frequencies && (
+                  <p><strong>Frequency Analysis:</strong> {result.frequencies}</p>
+                )}
+                {result.mapping && (
+                  <div>
+                    <p><strong>Letter Mappings:</strong></p>
+                    <pre>{JSON.stringify(result.mapping, null, 2)}</pre>
+                  </div>
+                )}
+                {result.decrypted && (
+                  <p><strong>Decrypted Attempt:</strong> {result.decrypted}</p>
+                )}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {currentKey && (
+        <div className="key-info">
+          <h3>Current Encryption Key:</h3>
+          <p className="key-note">This key is needed for decryption. A new random key is generated for each encryption.</p>
+          <div className="key-sample">
+            <p>Sample of key mappings:</p>
+            <pre>{JSON.stringify(Object.fromEntries(
+              Object.entries(currentKey).slice(0, 5)
+            ), null, 2)}</pre>
           </div>
         </div>
       )}

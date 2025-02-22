@@ -1,54 +1,52 @@
 from typing import Dict
 
-def create_reverse_substitution_key(shift: int) -> Dict[str, str]:
-    """
-    Create a reverse substitution key for decryption
-    Parameters:
-        shift (int): The shift value used for encryption
-    Returns:
-        Dict[str, str]: Dictionary mapping each substituted character back to original
-    """
-    substitution = {}
-    
-    # Create reverse mapping for all ASCII characters (0-255)
-    for i in range(256):
-        substituted = chr((i + shift) % 256)
-        original = chr(i)
-        substitution[substituted] = original
-    
-    return substitution
+def create_reverse_substitution_key(substitution_key: Dict[str, str]) -> Dict[str, str]:
 
-def monoalphabetic_decrypt(ciphertext: str, shift: int) -> str:
+    return {v: k for k, v in substitution_key.items()}
+
+def monoalphabetic_decrypt(ciphertext: str, substitution_key: Dict[str, str]) -> str:
     """
     Decrypt text encrypted with monoalphabetic substitution cipher
     Parameters:
         ciphertext (str): The encrypted text to decrypt
-        shift (int): The shift value used for encryption
+        substitution_key (Dict[str, str]): The encryption substitution key
     Returns:
         str: The decrypted text
     """
     # Create the reverse substitution key
-    reverse_key = create_reverse_substitution_key(shift)
+    reverse_key = create_reverse_substitution_key(substitution_key)
     
     # Decrypt the text using the reverse substitution key
     decrypted_text = ""
-    for char in ciphertext:
-        decrypted_text += reverse_key[char]
+    try:
+        for char in ciphertext:
+            if char in reverse_key:
+                decrypted_text += reverse_key[char]
+            else:
+                # If character not in key, keep it unchanged
+                decrypted_text += char
+    except Exception as e:
+        print(f"Error during decryption: {e}")
+        print(f"Problem character: {char}")
+        print(f"Reverse key sample: {dict(list(reverse_key.items())[:5])}")
+        raise
     
     return decrypted_text
 
 if __name__ == "__main__":
-    # Test the decryption function
-    test_text = "KHOOR Zruog! 123"  # "HELLO World! 123" encrypted with shift=3
-    shift = 3
+    # Test the decryption function with a sample substitution key
+    test_text = "HELLO World! 123"
+    from monoalphabetic_encryption import monoalphabetic_encrypt
     
-    # Show the reverse substitution key
-    key = create_reverse_substitution_key(shift)
-    print("Reverse Substitution Key:")
-    print("Uppercase:", {k: v for k, v in key.items() if k.isupper()})
-    print("Lowercase:", {k: v for k, v in key.items() if k.islower()})
+    # First encrypt the text
+    encrypted, key = monoalphabetic_encrypt(test_text)
     
-    # Perform decryption
-    decrypted = monoalphabetic_decrypt(test_text, shift)
-    print(f"\nEncrypted text: {test_text}")
-    print(f"Decrypted text (shift={shift}): {decrypted}") 
+    # Then decrypt it
+    decrypted = monoalphabetic_decrypt(encrypted, key)
+    
+    print(f"Original text: {test_text}")
+    print(f"Encrypted text: {encrypted}")
+    print(f"Decrypted text: {decrypted}")
+    print("\nSample of substitution key used:")
+    sample = {k: v for k, v in key.items() if k in test_text}
+    print(sample) 
