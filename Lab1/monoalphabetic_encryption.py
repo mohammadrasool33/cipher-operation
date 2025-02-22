@@ -6,21 +6,14 @@ def create_substitution_key(shift: int) -> Dict[str, str]:
     Parameters:
         shift (int): The shift value to create the substitution alphabet
     Returns:
-        Dict[str, str]: Dictionary mapping each letter to its substitution
+        Dict[str, str]: Dictionary mapping each character to its substitution
     """
-    # Create substitution for uppercase and lowercase letters
     substitution = {}
     
-    # Create mapping for uppercase letters (A-Z)
-    for i in range(26):
-        original = chr(ord('A') + i)
-        substituted = chr(ord('A') + ((i + shift) % 26))
-        substitution[original] = substituted
-    
-    # Create mapping for lowercase letters (a-z)
-    for i in range(26):
-        original = chr(ord('a') + i)
-        substituted = chr(ord('a') + ((i + shift) % 26))
+    # Create mapping for all ASCII characters (0-255)
+    for i in range(256):
+        original = chr(i)
+        substituted = chr((i + shift) % 256)
         substitution[original] = substituted
     
     return substitution
@@ -40,12 +33,7 @@ def monoalphabetic_encrypt(plaintext: str, shift: int) -> str:
     # Encrypt the text using the substitution key
     encrypted_text = ""
     for char in plaintext:
-        if char.isalpha():
-            # Use the substitution key for alphabetic characters
-            encrypted_text += substitution_key[char]
-        else:
-            # Keep non-alphabetic characters unchanged
-            encrypted_text += char
+        encrypted_text += substitution_key[char]
     
     return encrypted_text
 

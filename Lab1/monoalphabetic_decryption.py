@@ -6,21 +6,14 @@ def create_reverse_substitution_key(shift: int) -> Dict[str, str]:
     Parameters:
         shift (int): The shift value used for encryption
     Returns:
-        Dict[str, str]: Dictionary mapping each substituted letter back to original
+        Dict[str, str]: Dictionary mapping each substituted character back to original
     """
-    # Create substitution for uppercase and lowercase letters
     substitution = {}
     
-    # Create reverse mapping for uppercase letters (A-Z)
-    for i in range(26):
-        substituted = chr(ord('A') + ((i + shift) % 26))
-        original = chr(ord('A') + i)
-        substitution[substituted] = original
-    
-    # Create reverse mapping for lowercase letters (a-z)
-    for i in range(26):
-        substituted = chr(ord('a') + ((i + shift) % 26))
-        original = chr(ord('a') + i)
+    # Create reverse mapping for all ASCII characters (0-255)
+    for i in range(256):
+        substituted = chr((i + shift) % 256)
+        original = chr(i)
         substitution[substituted] = original
     
     return substitution
@@ -40,12 +33,7 @@ def monoalphabetic_decrypt(ciphertext: str, shift: int) -> str:
     # Decrypt the text using the reverse substitution key
     decrypted_text = ""
     for char in ciphertext:
-        if char.isalpha():
-            # Use the reverse substitution key for alphabetic characters
-            decrypted_text += reverse_key[char]
-        else:
-            # Keep non-alphabetic characters unchanged
-            decrypted_text += char
+        decrypted_text += reverse_key[char]
     
     return decrypted_text
 

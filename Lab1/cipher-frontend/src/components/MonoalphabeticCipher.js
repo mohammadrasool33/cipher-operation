@@ -206,9 +206,7 @@ function MonoalphabeticCipher() {
           <div className="results-container">
             {attackResults.map((result, index) => (
               <div key={index} className="result-item">
-                <strong>Shift {result.shift}</strong> 
-                <span className="score">(Score: {result.likelihood_score})</span>: 
-                {result.plaintext}
+                <strong>Shift {result.shift}</strong>: {result.plaintext}
               </div>
             ))}
           </div>

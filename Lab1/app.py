@@ -90,28 +90,16 @@ def monoalphabetic_attack(text: str) -> List[dict]:
     """Perform frequency analysis attack on monoalphabetic cipher"""
     results = []
     
-    # Get frequency order of the ciphertext
-    cipher_freq_order = get_frequency_order(text)
-    
-    # Try all possible shifts and score them based on frequency analysis
-    for shift in range(26):
+    # Try all possible shifts (0-255)
+    for shift in range(256):
         decrypted = monoalphabetic_decrypt(text, shift)
         
-        # Calculate match score based on letter frequencies
-        match_score = 0
-        for i, letter in enumerate(cipher_freq_order[:6]):  # Check first 6 most common letters
-            expected_pos = ENGLISH_FREQUENCIES.find(chr(((ord(letter) - ord('a') - shift) % 26) + ord('a')))
-            if expected_pos < 6:  # If the letter is among the 6 most common in English
-                match_score += 1 - (expected_pos / 6)
-        
+        # Add the result with its shift value
         results.append({
             "shift": shift,
-            "plaintext": decrypted,
-            "likelihood_score": round(match_score, 3)
+            "plaintext": decrypted
         })
     
-    # Sort results by likelihood score (highest first)
-    results.sort(key=lambda x: x["likelihood_score"], reverse=True)
     return results
 
 # API Endpoints
