@@ -43,11 +43,15 @@ function CaesarCipher() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text, shift }),
+        body: JSON.stringify({ 
+          text: text, 
+          shift: parseInt(shift)
+        }),
       });
-
+      
       if (!response.ok) {
-        throw new Error('Server error');
+        const error = await response.json();
+        throw new Error(error.detail || 'Server error');
       }
 
       const data = await response.json();
@@ -56,7 +60,7 @@ function CaesarCipher() {
       setErrors({});
     } catch (error) {
       console.error('Error:', error);
-      setErrors({ submit: 'Failed to encrypt text. Please try again.' });
+      setErrors({ submit: error.message || 'Failed to encrypt text. Please try again.' });
     }
     setLoading(false);
   };
@@ -71,11 +75,15 @@ function CaesarCipher() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text, shift }),
+        body: JSON.stringify({ 
+          text: text, 
+          shift: parseInt(shift)
+        }),
       });
 
       if (!response.ok) {
-        throw new Error('Server error');
+        const error = await response.json();
+        throw new Error(error.detail || 'Server error');
       }
 
       const data = await response.json();
@@ -84,7 +92,7 @@ function CaesarCipher() {
       setErrors({});
     } catch (error) {
       console.error('Error:', error);
-      setErrors({ submit: 'Failed to decrypt text. Please try again.' });
+      setErrors({ submit: error.message || 'Failed to decrypt text. Please try again.' });
     }
     setLoading(false);
   };
@@ -206,7 +214,8 @@ function CaesarCipher() {
           <div className="results-container">
             {attackResults.map((result, index) => (
               <div key={index} className="result-item">
-                <strong>Shift {result.shift}:</strong> {result.plaintext}
+                <h4>{result.description}</h4>
+                <p><strong>Decrypted Text:</strong> {result.decrypted}</p>
               </div>
             ))}
           </div>

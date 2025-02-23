@@ -23,7 +23,7 @@
   text-shadow: 0 2px 10px rgba(0, 242, 254, 0.2);
 }
 
-.tab-buttons {
+.cipher-selector {
   display: flex;
   justify-content: center;
   gap: 25px;
@@ -31,7 +31,7 @@
   padding: 0 20px;
 }
 
-.tab-buttons button {
+.cipher-selector button {
   padding: 16px 32px;
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 15px;
@@ -48,7 +48,7 @@
   overflow: hidden;
 }
 
-.tab-buttons button:before {
+.cipher-selector button:before {
   content: "";
   position: absolute;
   top: 0;
@@ -64,18 +64,18 @@
   transition: 0.6s;
 }
 
-.tab-buttons button:hover:before {
+.cipher-selector button:hover:before {
   left: 100%;
 }
 
-.tab-buttons button:hover {
+.cipher-selector button:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
   border-color: rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
 }
 
-.tab-buttons button.active {
+.cipher-selector button.active {
   background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
   border-color: transparent;
   box-shadow: 0 10px 20px rgba(0, 242, 254, 0.3);
@@ -108,12 +108,12 @@ main {
     font-size: 32px;
   }
 
-  .tab-buttons {
+  .cipher-selector {
     flex-direction: column;
     gap: 15px;
   }
 
-  .tab-buttons button {
+  .cipher-selector button {
     width: 100%;
     max-width: 300px;
     margin: 0 auto;

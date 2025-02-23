@@ -4,33 +4,29 @@ import CaesarCipher from './components/CaesarCipher';
 import MonoalphabeticCipher from './components/MonoalphabeticCipher';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('caesar');
+  const [activeCipher, setActiveCipher] = useState('caesar');
 
   return (
     <div className="App">
       <header className="App-header">
         <h1>Cipher Operations</h1>
-        <div className="tab-buttons">
+        <div className="cipher-selector">
           <button 
-            className={activeTab === 'caesar' ? 'active' : ''} 
-            onClick={() => setActiveTab('caesar')}
+            className={activeCipher === 'caesar' ? 'active' : ''} 
+            onClick={() => setActiveCipher('caesar')}
           >
             Caesar Cipher
           </button>
           <button 
-            className={activeTab === 'monoalphabetic' ? 'active' : ''} 
-            onClick={() => setActiveTab('monoalphabetic')}
+            className={activeCipher === 'monoalphabetic' ? 'active' : ''} 
+            onClick={() => setActiveCipher('monoalphabetic')}
           >
             Monoalphabetic Cipher
           </button>
         </div>
       </header>
       <main>
-        {activeTab === 'caesar' ? (
-          <CaesarCipher />
-        ) : (
-          <MonoalphabeticCipher />
-        )}
+        {activeCipher === 'caesar' ? <CaesarCipher /> : <MonoalphabeticCipher />}
       </main>
     </div>
   );
